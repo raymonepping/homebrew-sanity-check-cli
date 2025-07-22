@@ -61,6 +61,12 @@ route_file_check() {
       return
     fi
     ;;
+  md)
+    # shellcheck disable=SC1091
+    source "$LIB_DIR/check_markdown.sh"
+    check_markdown "$file" "$mode"
+    return
+    ;;
   esac
 
   # 💡 Fallback: detect Bash script by shebang
