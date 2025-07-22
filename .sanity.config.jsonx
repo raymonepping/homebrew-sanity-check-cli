@@ -1,0 +1,34 @@
+{
+  "tools": {
+    "bash": {
+      "enabled": true,
+      "linters": ["shellcheck"],
+      "formatters": ["shfmt"]
+    },
+    "docker": {
+      "enabled": true,
+      "linters": ["hadolint"],
+      "scanners": ["grype"]
+    },
+    "compose": {
+      "enabled": true,
+      "linters": ["hadolint"]
+    },
+    "terraform": {
+      "enabled": true,
+      "formatters": ["terraform fmt"],
+      "linters": ["tflint"]
+    },
+    "python": {
+      "enabled": true,
+      "linters": ["pylint","flake8","bandit"],
+      "formatters": ["black", "isort", "autoflake"]
+    },
+    "node": {
+      "enabled": true,
+      "linters": ["eslint"],
+      "formatters": ["prettier"],
+      "audit": []
+    }
+  }
+}
