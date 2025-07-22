@@ -3,10 +3,14 @@ set -euo pipefail
 
 # --- Version & CLI Info ---
 # shellcheck disable=SC2034
-VERSION="1.1.1"
+VERSION="1.1.2"
 CLI_NAME="sanity-check-cli"
 CONFIG_FILE=""
 MODE="all"
+
+REPORT=false
+FRESH_REPORT=false
+REPORT_FILE="sanity_check.md"
 
 # shellcheck disable=SC2034  # QUIET is intentionally global for submodules
 QUIET=false
@@ -89,6 +93,8 @@ while [[ $# -gt 0 ]]; do
     print_all_tool_versions
     exit 0
     ;;
+  --report) REPORT=true; shift ;;
+  --fresh-report) FRESH_REPORT=true; REPORT=true; shift ;;    
   --version)
     echo "$CLI_NAME v$VERSION"
     exit 0
@@ -106,6 +112,8 @@ OPTIONS:
   --file FILE             Specify file(s) to check (may repeat or use globs)
   --config CONFIG         Use a custom .sanity.config.json
   --tools                 Show toolchain versions (python, terraform, node, etc)
+  --report                Generate a Markdown report
+  --fresh-report          Start a fresh Markdown report
   --version               Show $CLI_NAME version only
   --quiet                 Suppress all non-error output
   --help                  Show this help message
@@ -127,6 +135,11 @@ EOF
   esac
 done
 
+# --- Fresh report? ---
+if [[ "$FRESH_REPORT" == true ]]; then
+  echo "🧼 Fresh report started on $(date)" >"$REPORT_FILE"
+fi
+
 # --- Print config summary ---
 if [[ -z "$CONFIG_FILE" || ! -f "$CONFIG_FILE" ]]; then
   echo "⚠️  No valid config file found. Proceeding with default tool set."
@@ -143,6 +156,11 @@ echo "🔍 Running sanity check on ${#FILES[@]} file(s)..."
 for file in "${FILES[@]}"; do
   route_file_check "$file" "$MODE"
 done
+
+# --- Reporting ---
+if [[ "$REPORT" == true || ${#MISSING_TOOL_WARNINGS[@]} -gt 0 || ${#PROBLEM_FILES[@]} -gt 0 ]]; then
+  render_markdown_report "$REPORT_FILE"
+fi
 
 echo "✅ Sanity check complete."
 exit 0

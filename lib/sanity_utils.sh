@@ -93,3 +93,59 @@ tool_version() {
     echo "not installed"
   fi
 }
+
+render_markdown_report() {
+  local report_file="$1"
+  local timestamp
+  timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
+  local tpl_file="$TPL_DIR/report.tpl"
+
+  {
+    sed "s/{{TIMESTAMP}}/$timestamp/" "$tpl_file" |
+    awk -v processed="${FILES[*]}" \
+        -v missing="${MISSING_TOOL_WARNINGS[*]:-}" \
+        -v issues="${PROBLEM_FILES[*]:-}" '
+      BEGIN {
+        split(processed, files_arr, " ");
+        split(missing, missing_arr, " ");
+        split(issues, issues_arr, " ");
+
+        PROCESSED_FILES = length(files_arr) > 0;
+        MISSING_TOOLS = length(missing_arr) > 0;
+        LINT_ISSUES = length(issues_arr) > 0;
+      }
+
+      /{{#PROCESSED_FILES}}/,/{{\/PROCESSED_FILES}}/ {
+        if (/{{#files}}/) {
+          for (f in files_arr) print "- `" files_arr[f] "`";
+          next;
+        }
+        if (!PROCESSED_FILES) next;
+      }
+
+      /{{#MISSING_TOOLS}}/,/{{\/MISSING_TOOLS}}/ {
+        if (/{{#tools}}/) {
+          for (m in missing_arr) print "- " missing_arr[m];
+          next;
+        }
+        if (!MISSING_TOOLS) next;
+      }
+
+      /{{#LINT_ISSUES}}/,/{{\/LINT_ISSUES}}/ {
+        if (/{{#issues}}/) {
+          for (i in issues_arr) print "- `" issues_arr[i] "`";
+          next;
+        }
+        if (!LINT_ISSUES) next;
+      }
+
+      /{{\^LINT_ISSUES}}/,/{{\/LINT_ISSUES}}/ {
+        if (LINT_ISSUES) next;
+      }
+
+      !/{{[#\/^].*}}/ {print}
+    '
+  } >>"$report_file"
+
+  echo -e "\n📄 Markdown report saved to \033[1;36m$report_file\033[0m"
+}
