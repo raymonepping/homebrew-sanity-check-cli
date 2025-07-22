@@ -117,7 +117,7 @@ render_markdown_report() {
 
       /{{#PROCESSED_FILES}}/,/{{\/PROCESSED_FILES}}/ {
         if (/{{#files}}/) {
-          for (f in files_arr) print "- `" files_arr[f] "`";
+          for (i = 1; i <= length(files_arr); i++) print "- `" files_arr[i] "`";
           next;
         }
         if (!PROCESSED_FILES) next;
@@ -125,7 +125,7 @@ render_markdown_report() {
 
       /{{#MISSING_TOOLS}}/,/{{\/MISSING_TOOLS}}/ {
         if (/{{#tools}}/) {
-          for (m in missing_arr) print "- " missing_arr[m];
+          for (i = 1; i <= length(missing_arr); i++) print "- " missing_arr[i];
           next;
         }
         if (!MISSING_TOOLS) next;
@@ -133,7 +133,7 @@ render_markdown_report() {
 
       /{{#LINT_ISSUES}}/,/{{\/LINT_ISSUES}}/ {
         if (/{{#issues}}/) {
-          for (i in issues_arr) print "- `" issues_arr[i] "`";
+          for (i = 1; i <= length(issues_arr); i++) print "- `" issues_arr[i] "`";
           next;
         }
         if (!LINT_ISSUES) next;
@@ -149,3 +149,4 @@ render_markdown_report() {
 
   echo -e "\n📄 Markdown report saved to \033[1;36m$report_file\033[0m"
 }
+
