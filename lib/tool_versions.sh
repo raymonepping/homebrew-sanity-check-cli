@@ -51,6 +51,7 @@ print_all_tool_versions() {
     [Docker]="dockerfmt hadolint dockle"
     [ContainerSecurity]="trivy grype syft"
     [Compose]="docker docker-compose yamllint"
+    [Markdown]="prettier markdownlint"
   )
 
   for GROUP in "${!TOOL_GROUPS[@]}"; do
