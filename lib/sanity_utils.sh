@@ -101,52 +101,58 @@ render_markdown_report() {
   local tpl_file="$TPL_DIR/report.tpl"
 
   {
+    # Replace timestamp placeholder up front
     sed "s/{{TIMESTAMP}}/$timestamp/" "$tpl_file" |
     awk -v processed="${FILES[*]}" \
         -v missing="${MISSING_TOOL_WARNINGS[*]:-}" \
         -v issues="${PROBLEM_FILES[*]:-}" '
       BEGIN {
-        split(processed, files_arr, " ");
-        split(missing, missing_arr, " ");
-        split(issues, issues_arr, " ");
-
-        PROCESSED_FILES = length(files_arr) > 0;
-        MISSING_TOOLS = length(missing_arr) > 0;
-        LINT_ISSUES = length(issues_arr) > 0;
+        # Convert Bash arrays into awk arrays
+        n_files = split(processed, files_arr, " ")
+        n_missing = split(missing, missing_arr, " ")
+        n_issues = split(issues, issues_arr, " ")
+        PROCESSED_FILES = n_files > 0
+        MISSING_TOOLS = n_missing > 0
+        LINT_ISSUES = n_issues > 0
       }
 
+      # Processed Files block
       /{{#PROCESSED_FILES}}/,/{{\/PROCESSED_FILES}}/ {
         if (/{{#files}}/) {
-          for (i = 1; i <= length(files_arr); i++) print "- `" files_arr[i] "`";
+          for (i = 1; i <= n_files; i++) print "- `" files_arr[i] "`";
           next;
         }
+        if (/{{.}}/) next;    # Skip literal Mustache lines
         if (!PROCESSED_FILES) next;
       }
 
+      # Missing Tools block
       /{{#MISSING_TOOLS}}/,/{{\/MISSING_TOOLS}}/ {
         if (/{{#tools}}/) {
-          for (i = 1; i <= length(missing_arr); i++) print "- " missing_arr[i];
+          for (i = 1; i <= n_missing; i++) print "- " missing_arr[i];
           next;
         }
         if (!MISSING_TOOLS) next;
       }
 
+      # Lint Issues block
       /{{#LINT_ISSUES}}/,/{{\/LINT_ISSUES}}/ {
         if (/{{#issues}}/) {
-          for (i = 1; i <= length(issues_arr); i++) print "- `" issues_arr[i] "`";
+          for (i = 1; i <= n_issues; i++) print "- `" issues_arr[i] "`";
           next;
         }
         if (!LINT_ISSUES) next;
       }
 
+      # No Lint Issues block (invert: only print if none)
       /{{\^LINT_ISSUES}}/,/{{\/LINT_ISSUES}}/ {
         if (LINT_ISSUES) next;
       }
 
-      !/{{[#\/^].*}}/ {print}
+      # Default: print any other lines not handled above, and skip Mustache
+      !/{{[#\/^].*}}/ { print }
     '
   } >>"$report_file"
 
   echo -e "\n📄 Markdown report saved to \033[1;36m$report_file\033[0m"
 }
-
