@@ -35,3 +35,7 @@ check_compose() {
     [[ "$QUIET" == false ]] && echo "ℹ️  Not a Compose file: $file (no services/version key)"
   fi
 }
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  check_markdown "$@"
+fi

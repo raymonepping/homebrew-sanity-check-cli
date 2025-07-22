@@ -114,3 +114,7 @@ check_node() {
     popd >/dev/null || return
   fi
 }
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  check_markdown "$@"
+fi

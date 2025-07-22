@@ -47,3 +47,7 @@ check_bash() {
     echo "${lint_status}${lint_status:+ | }${fmt_status}"
   fi
 }
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  check_markdown "$@"
+fi

@@ -41,3 +41,7 @@ check_docker() {
     [[ -n "$IMAGE" ]] && grype "$IMAGE" || echo "⚠️  No FROM image found to scan with grype"
   fi
 }
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  check_markdown "$@"
+fi
