@@ -1,34 +1,34 @@
-class BrewBrainCli < Formula
-
-  desc "Audit, document, and manage your Homebrew CLI arsenal with one meta-tool"
-  homepage "https://github.com/raymonepping/brew_brain_cli"
-  url "https://github.com/raymonepping/homebrew-brew-brain-cli/archive/refs/tags/v1.3.0.tar.gz"
-  sha256 "26e59daa3c7214c2d4c195d8a52b75c801e0b3b7305b256d583faf40c61df260"
+class SanityCheckCli < Formula
+  desc "Lint, format, and sanity-check your scripts, configs, and Docker/Terraform files"
+  homepage "https://github.com/raymonepping/sanity_check_cli"
+  url "https://github.com/raymonepping/sanity_check_cli/archive/refs/tags/v1.0.0.tar.gz"
+  sha256 "<PUT_YOUR_NEW_SHA256_HERE>"
   license "MIT"
-  version "1.3.0"
+  version "1.0.0"
 
   depends_on "bash"
   depends_on "jq"
 
   def install
-    bin.install "bin/brew_brain" => "brew_brain"
+    bin.install "bin/sanity_check" => "sanity_check"
     share.install Dir["lib"], Dir["tpl"]
   end
 
   def caveats
     <<~EOS
       To get started, run:
-        brew_brain --help
-
-      This CLI helps audit, document, and version-manage your custom Homebrew CLI arsenal.
+        sanity_check --help
 
       Example usage:
-        brew_brain --output markdown --output-file arsenal
-        brew_brain checkup
+        sanity_check main.py
+        sanity_check Dockerfile --lint
+        sanity_check --report ./src
+
+      Happy linting!
     EOS
   end
 
   test do
-    assert_match "brew_brain", shell_output("#{bin}/brew_brain --help")
+    assert_match "sanity_check", shell_output("#{bin}/sanity_check --help")
   end
 end

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# shellcheck disable=SC2034
 VERSION="1.0.0"
 CLI_NAME="sanity-check-cli"
 CONFIG_FILE=""
