@@ -1,10 +1,10 @@
 class SanityCheckCli < Formula
   desc "Lint, format, and sanity-check your scripts, configs, and Docker/Terraform files"
   homepage "https://github.com/raymonepping/sanity_check_cli"
-  url "https://github.com/raymonepping/homebrew-sanity-check-cli/archive/refs/tags/v1.1.1.tar.gz"
-  sha256 "db2281dc1ba6fd194f1e305809d83497d840651f6b7d0422b6631d636e98a4a9"
+  url "https://github.com/raymonepping/homebrew-sanity-check-cli/archive/refs/tags/v1.1.2.tar.gz"
+  sha256 "a01565a4ece379c6dd7e1cb90c32ab8a6ddb3586133f6de12d2934d29bfc0f76"
   license "MIT"
-  version "1.1.1"
+  version "1.1.2"
 
   depends_on "bash"
   depends_on "jq"
