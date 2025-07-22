@@ -3,7 +3,7 @@
 print_version() {
   local tool="$1"
   if ! command -v "$tool" &>/dev/null; then
-    echo -e "⚠️  $tool: \033[1;33mnot installed\033[0m"
+    # echo -e "⚠️  $tool: \033[1;33mnot installed\033[0m"
     return
   fi
 
