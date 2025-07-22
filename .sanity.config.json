@@ -29,6 +29,12 @@
       "linters": ["eslint"],
       "formatters": ["prettier"],
       "audit": []
-    }
+    },
+    "markdown": {
+      "enabled": true,
+      "linters": ["markdownlint", "write-good"],
+      "formatters": ["prettier"],
+      "audit": []
+    }    
   }
 }
