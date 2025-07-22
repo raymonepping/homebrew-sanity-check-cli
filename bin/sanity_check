@@ -3,7 +3,7 @@ set -euo pipefail
 
 # --- Version & CLI Info ---
 # shellcheck disable=SC2034
-VERSION="1.0.6"
+VERSION="1.1.0"
 CLI_NAME="sanity-check-cli"
 CONFIG_FILE=""
 MODE="all"
@@ -40,10 +40,13 @@ done
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # --- Load utilities and submodules ---
+
 # shellcheck disable=SC1091
 source "$LIB_DIR/sanity_utils.sh"
+
 # shellcheck disable=SC1091
 source "$LIB_DIR/check_router.sh"
+
 # shellcheck disable=SC1091
 source "$LIB_DIR/tool_versions.sh"
 
@@ -82,7 +85,7 @@ while [[ $# -gt 0 ]]; do
     shift 2
     ;;
   --tools)
-    echo "$CLI_NAME v$VERSION"
+    # echo "$CLI_NAME v$VERSION"
     print_all_tool_versions
     exit 0
     ;;
