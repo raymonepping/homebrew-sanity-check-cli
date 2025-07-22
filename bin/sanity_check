@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# --- Version & CLI Info ---
 # shellcheck disable=SC2034
-VERSION="1.0.0"
+VERSION="1.0.2"
 CLI_NAME="sanity-check-cli"
 CONFIG_FILE=""
-ACTION="run"
 MODE="all"
+
+# shellcheck disable=SC2034  # QUIET is intentionally global for submodules
 QUIET=false
+export QUIET=false
 
-FOO=""
-
-# --- Smart LIB and TPL lookup (Homebrew-friendly) ---
-        HOMEBREW_PREFIX="$(brew --prefix 2>/dev/null || true)"
-
+# --- Homebrew-aware LIB/TPL lookup ---
+HOMEBREW_PREFIX="$(brew --prefix 2>/dev/null || true)"
 POSSIBLE_LIB_DIRS=(
   "$HOMEBREW_PREFIX/share/$CLI_NAME/lib"
   "$HOMEBREW_PREFIX/opt/$CLI_NAME/share/$CLI_NAME/lib"
@@ -24,7 +24,6 @@ POSSIBLE_TPL_DIRS=(
   "$HOMEBREW_PREFIX/opt/$CLI_NAME/share/$CLI_NAME/tpl"
   "./tpl"
 )
-
 LIB_DIR=""
 for d in "${POSSIBLE_LIB_DIRS[@]}"; do
   [[ -d "$d" ]] && LIB_DIR="$d" && break
@@ -37,58 +36,106 @@ for d in "${POSSIBLE_TPL_DIRS[@]}"; do
 done
 [[ -z "$TPL_DIR" ]] && echo "❌ Could not locate tpl/ directory." && exit 1
 
+# shellcheck disable=SC2034
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# --- Load common utils ---
+# --- Load utilities and submodules ---
+# shellcheck disable=SC1091
 source "$LIB_DIR/sanity_utils.sh"
+# shellcheck disable=SC1091
 source "$LIB_DIR/check_router.sh"
+# shellcheck disable=SC1091
 source "$LIB_DIR/tool_versions.sh"
 
-# --- Smart JSON config file resolution ---
+# --- Find config ---
 DEFAULT_CONFIG_LOCATIONS=(
   "$HOME/.sanity.config.json"
   "$HOME/.config/sanity_check/.sanity.config.json"
   "./.sanity.config.json"
 )
-
 for c in "${DEFAULT_CONFIG_LOCATIONS[@]}"; do
   [[ -f "$c" ]] && CONFIG_FILE="$c" && break
 done
 
-# --- CLI Argument Parsing ---
+# --- Parse CLI Arguments ---
 FILES=()
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --fix) MODE="fix"; shift;;
-    --lint) MODE="lint"; shift;;
-    --quiet) QUIET=true; shift;;
-    --file) FILES+=("$2"); shift 2;;
-    --config) CONFIG_FILE="$2"; shift 2;;
-    --version) echo "$CLI_NAME v$VERSION"; print_all_tool_versions; exit 0;;
-    --help)
-      cat <<EOF
+  --fix)
+    MODE="fix"
+    shift
+    ;;
+  --lint)
+    MODE="lint"
+    shift
+    ;;
+  --quiet)
+    QUIET=true
+    shift
+    ;;
+  --file)
+    FILES+=("$2")
+    shift 2
+    ;;
+  --config)
+    CONFIG_FILE="$2"
+    shift 2
+    ;;
+  --tools)
+    echo "$CLI_NAME v$VERSION"
+    print_all_tool_versions
+    exit 0
+    ;;
+  --version)
+    echo "$CLI_NAME v$VERSION"
+    exit 0
+    ;;
+  --help)
+    cat <<EOF
 🧪 $CLI_NAME v$VERSION
-USAGE: $0 [--lint|--fix] [--file FILE] [--config CONFIG] [--quiet] [--version] [--help]
+
+USAGE:
+  $0 [OPTIONS] [FILE ...]
+
+OPTIONS:
+  --fix                   Format/auto-fix supported files (sh, py, js, tf, Dockerfile, etc)
+  --lint                  Lint supported files (shellcheck, flake8, eslint, tflint, etc)
+  --file FILE             Specify file(s) to check (may repeat or use globs)
+  --config CONFIG         Use a custom .sanity.config.json
+  --tools                 Show toolchain versions (python, terraform, node, etc)
+  --version               Show $CLI_NAME version only
+  --quiet                 Suppress all non-error output
+  --help                  Show this help message
+
+EXAMPLES:
+  $0 --lint --file main.py --file Dockerfile
+  $0 --fix
+  $0 --tools
+
+If no files are specified, $CLI_NAME will search the current folder recursively for supported files.
+
 EOF
-      exit 0
-      ;;
-    *) FILES+=("$1"); shift;;
+    exit 0
+    ;;
+  *)
+    FILES+=("$1")
+    shift
+    ;;
   esac
 done
 
-# --- Validate config ---
+# --- Print config summary ---
 if [[ -z "$CONFIG_FILE" || ! -f "$CONFIG_FILE" ]]; then
   echo "⚠️  No valid config file found. Proceeding with default tool set."
 else
   echo "✅ Using config: $CONFIG_FILE"
 fi
 
-# --- Find files if none specified ---
+# --- File discovery ---
 if [[ ${#FILES[@]} -eq 0 ]]; then
   mapfile -t FILES < <(find . -type f \( -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.tf" -o -name "*.hcl" -o -name "Dockerfile" -o -name "*.yml" -o -name "*.yaml" \))
 fi
 
-# --- Route files ---
 echo "🔍 Running sanity check on ${#FILES[@]} file(s)..."
 for file in "${FILES[@]}"; do
   route_file_check "$file" "$MODE"
