@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
-# shellcheck disable=SC1091
-source "$LIB_DIR/sanity_utils.sh"
+# Helper: Get absolute path
+abspath() {
+  [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
+}
+
+warn() { echo -e "⚠️  $*" >&2; }
 
 check_json() {
   local file="$1" mode="${2:-all}"
