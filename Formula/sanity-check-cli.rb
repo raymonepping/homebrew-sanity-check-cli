@@ -11,7 +11,7 @@ class SanityCheckCli < Formula
 
   def install
     bin.install "bin/sanity_check" => "sanity_check"
-      pkgshare.install %w[lib tpl]
+    pkgshare.install %w[lib tpl]
   end
 
   def caveats

@@ -47,6 +47,12 @@ route_file_check() {
     check_terraform "$file" "$mode"
     return
     ;;
+  json)
+    # shellcheck disable=SC1091
+    source "$LIB_DIR/check_json.sh"
+    check_json "$file" "$mode"
+    return
+    ;;    
   Dockerfile)
     # shellcheck disable=SC1091
     source "$LIB_DIR/check_docker.sh"

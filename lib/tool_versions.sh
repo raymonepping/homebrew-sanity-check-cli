@@ -64,6 +64,7 @@ print_all_tool_versions() {
     [ContainerSecurity]="trivy grype syft"
     [Compose]="docker docker-compose yamllint"
     [Markdown]="prettier markdownlint"
+    [JSON]="prettier jsonlint jq spectral"
   )
 
   for GROUP in "${!TOOL_GROUPS[@]}"; do

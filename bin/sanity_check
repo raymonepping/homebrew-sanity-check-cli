@@ -3,7 +3,8 @@ set -euo pipefail
 
 # --- Version & CLI Info ---
 # shellcheck disable=SC2034
-VERSION="1.1.7"
+VERSION="1.2.0"
+
 CLI_NAME="sanity-check-cli"
 CONFIG_FILE=""
 MODE="all"
@@ -152,7 +153,18 @@ fi
 
 # --- File discovery ---
 if [[ ${#FILES[@]} -eq 0 ]]; then
-  mapfile -t FILES < <(find . -type f \( -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.tf" -o -name "*.hcl" -o -name "Dockerfile" -o -name "*.yml" -o -name "*.yaml" \))
+  mapfile -t FILES < <(find . -type f \( 
+    -name "*.sh" -o 
+    -name "*.py" -o 
+    -name "*.js" -o 
+    -name "*.ts" -o 
+    -name "*.tf" -o 
+    -name "*.hcl" -o 
+    -name "Dockerfile" -o 
+    -name "*.yml" -o
+    -name "*.json" -o
+    -name "*.yaml" 
+  \))
 fi
 
 echo "🔍 Running sanity check on ${#FILES[@]} file(s)..."
