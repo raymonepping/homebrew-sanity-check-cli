@@ -1,3 +1,8 @@
+#!/usr/bin/env bash
+
+# shellcheck disable=SC1091
+source "$LIB_DIR/sanity_utils.sh"
+
 check_json() {
   local file="$1" mode="${2:-all}"
   local absfile
