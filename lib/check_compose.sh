@@ -6,6 +6,7 @@ check_compose() {
 
   [[ "$QUIET" == false ]] && echo "🧪 [compose] Checking $file"
 
+  # YAML lint
   if tool_enabled_for docker yamllint && [[ "$mode" =~ ^(lint|all)$ ]]; then
     check_tool_or_prompt yamllint "brew install yamllint" || return
     [[ "$QUIET" == false ]] && echo "🔍 Linting $file with yamllint"
@@ -14,7 +15,8 @@ check_compose() {
     fi
   fi
 
-  if grep -qE '^\\s*services:' "$file" && grep -qE '^\\s*version:' "$file"; then
+  # Compose v2+ detection: top-level 'services:' is enough
+  if grep -qE '^[[:space:]]*services:' "$file"; then
     local VALID_CMD=()
     if command -v docker &>/dev/null && docker compose version &>/dev/null; then
       VALID_CMD=(docker compose -f "$file" config)
@@ -23,7 +25,7 @@ check_compose() {
     fi
 
     if [[ ${#VALID_CMD[@]} -eq 0 ]]; then
-      MISSING_TOOL_WARNINGS+=("docker-compose or docker compose (required for Compose validation in $file)")
+      MISSING_TOOL_WARNINGS+=("docker compose or docker-compose not found, cannot validate $file")
       return
     fi
 
@@ -32,10 +34,10 @@ check_compose() {
       PROBLEM_FILES+=("$file (Compose config failed)")
     fi
   else
-    [[ "$QUIET" == false ]] && echo "ℹ️  Not a Compose file: $file (no services/version key)"
+    [[ "$QUIET" == false ]] && echo "ℹ️  Not a Compose file: $file (no top-level 'services:')"
   fi
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  check_markdown "$@"
+  check_compose "$@"
 fi

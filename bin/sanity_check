@@ -23,15 +23,19 @@ export QUIET=false
 # --- Homebrew-aware LIB/TPL lookup ---
 HOMEBREW_PREFIX="$(brew --prefix 2>/dev/null || true)"
 POSSIBLE_LIB_DIRS=(
+  "${SANITY_LIB_DIR:-}"
+  "./lib"
   "$HOMEBREW_PREFIX/share/$CLI_NAME/lib"
   "$HOMEBREW_PREFIX/opt/$CLI_NAME/share/$CLI_NAME/lib"
-  "./lib"
+
 )
 POSSIBLE_TPL_DIRS=(
+  "${SANITY_TPL_DIR:-}"
+  "./tpl"
   "$HOMEBREW_PREFIX/share/$CLI_NAME/tpl"
   "$HOMEBREW_PREFIX/opt/$CLI_NAME/share/$CLI_NAME/tpl"
-  "./tpl"
 )
+
 LIB_DIR=""
 for d in "${POSSIBLE_LIB_DIRS[@]}"; do
   [[ -d "$d" ]] && LIB_DIR="$d" && break
