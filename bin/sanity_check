@@ -177,7 +177,8 @@ if [[ ${#FILES[@]} -eq 0 ]]; then
   mapfile -t FILES < <(find . -type f \( 
     -name "*.sh" -o 
     -name "*.py" -o 
-    -name "*.js" -o 
+    -name "*.js" -o
+    -name "*.rb" -o
     -name "*.ts" -o 
     -name "*.tf" -o 
     -name "*.hcl" -o 

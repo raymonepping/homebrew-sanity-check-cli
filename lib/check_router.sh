@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 route_file_check() {
   local file="$1"
@@ -14,7 +15,8 @@ route_file_check() {
   [[ "$basename" == "Dockerfile" ]] && ext="Dockerfile"
 
   # Shebang-based Bash detection for extensionless files
-  if [[ "$basename" != *.* && -z "$ext" ]]; then
+  # ${file##*.} returns the whole filename if there is no dot, so don't check -z
+  if [[ "$basename" != *.* ]]; then
     if head -n 1 "$file" | grep -qE '^#! */usr/(bin|env) +(env +)?bash'; then
       ext="sh"
     fi
@@ -29,6 +31,17 @@ route_file_check() {
   fi
 
   case "$ext" in
+    rb)
+      # Only treat as a Homebrew Formula if it defines `class < Formula`
+      if grep -qE 'class[[:space:]]+[A-Za-z0-9_]+[[:space:]]*<+[[:space:]]*Formula' "$file"; then
+        # shellcheck disable=SC1091
+        source "$LIB_DIR/check_brew_formula.sh"
+        check_brew_formula "$file" "$mode"
+        return
+      fi
+      [[ "${QUIET:-false}" == false ]] && echo "⏭️  [ruby] Non-formula Ruby file skipped: $file"
+      return
+      ;;
     sh)
       # shellcheck disable=SC1091
       source "$LIB_DIR/check_bash.sh"
@@ -99,3 +112,4 @@ route_file_check() {
 
   [[ "$QUIET" == false ]] && echo "⚠️  Skipping unsupported file: $file"
 }
+# ---------------------------

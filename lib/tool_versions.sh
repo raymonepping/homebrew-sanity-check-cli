@@ -65,6 +65,8 @@ print_all_tool_versions() {
     [Compose]="docker docker-compose yamllint"
     [Markdown]="prettier markdownlint"
     [JSON]="prettier jsonlint jq spectral"
+    [Homebrew]="brew"
+    [Ruby]="ruby gem bundler rubocop"
   )
 
   for GROUP in "${!TOOL_GROUPS[@]}"; do
