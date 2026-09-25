@@ -77,7 +77,46 @@ check_tool_or_prompt() {
 
 # Consistent logging
 log() {
-  [[ "${QUIET:-false}" == false ]] && echo -e "🧪 $*"
+  if [[ "${QUIET:-false}" == false ]]; then
+    echo -e "🧪 $*"
+  fi
+  return 0
+}
+
+# Prints its arguments unless QUIET is true. Always returns 0, regardless of
+# whether QUIET is true or false, and regardless of which branch of the `if`
+# below actually runs.
+#
+# This exists because the bare idiom `[[ "$QUIET" == false ]] && echo "..."`
+# is unsafe under `set -e` (bin/sanity_check's own top-level setting,
+# inherited by every lib/*.sh sourced into that same process): when QUIET is
+# true, the `[[ ... ]]` test is false, so the whole `A && B` line's exit
+# status is the test's own failure (1), not the echo's. If that line is the
+# last statement executed in its enclosing function/block — exactly what
+# happens for the last enabled tool checked on a given file — `set -e` treats
+# it as a real command failure and kills the entire script right there,
+# before it ever reaches the final "Sanity check complete" + exit 0.
+#
+# A first attempt at this fix wrote `[[ ... ]] && echo "$@"` followed by a
+# separate `return 0` line, which does NOT work: `set -e` kills the function
+# at the failing `[[ ]] && echo` statement itself, before that later
+# `return 0` is ever reached — confirmed live, the exact same failure
+# persisted after that "fix." An explicit `if/fi` is the only form that
+# avoids the ambiguous exit status entirely; there is no statement left
+# whose own failure could trigger `set -e`.
+#
+# Confirmed live: `sanity_check --fix --quiet` on an already-clean Python
+# file printed "All done! ... 1 file left unchanged." (autoflake's own
+# success message) and still exited 1 — bash -x traced it dying silently
+# immediately after the autoflake call, exactly on the
+# `[[ "${QUIET:-false}" == false ]] && echo "..."` line that used to follow
+# it. Every check_*.sh file had the same pattern, ~40 call sites total; all
+# converted to call this helper instead.
+qecho() {
+  if [[ "${QUIET:-false}" == false ]]; then
+    echo "$@"
+  fi
+  return 0
 }
 
 warn() {

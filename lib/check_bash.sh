@@ -7,7 +7,7 @@ check_bash() {
   local lint_status="" # Will contain status symbol and message
   local fmt_status=""  # Will contain formatting status
 
-  [[ "${QUIET:-false}" == false ]] && echo "🧪 [bash] Checking $file"
+  qecho "🧪 [bash] Checking $file"
 
   # --- shellcheck (linting) ---
   if tool_enabled_for "bash" "shellcheck"; then

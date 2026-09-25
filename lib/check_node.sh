@@ -33,7 +33,7 @@ check_node() {
   local file="$1" mode="${2:-all}"
   local absfile pkg_root esconfig_file did_pushd=false
 
-  [[ "${QUIET:-false}" == false ]] && echo "🧪 [node] Checking $file"
+  qecho "🧪 [node] Checking $file"
 
   absfile="$(abspath "$file")"
   pkg_root="$(find_package_root "$file" || true)"
@@ -50,7 +50,7 @@ check_node() {
       $did_pushd && popd >/dev/null || return
       return
     }
-    [[ "${QUIET:-false}" == false ]] && echo "🎨 Formatting $(basename "$absfile") with prettier"
+    qecho "🎨 Formatting $(basename "$absfile") with prettier"
     prettier --write "$absfile"
   fi
 
@@ -61,7 +61,7 @@ check_node() {
       return
     }
     if [[ -n "$esconfig_file" ]]; then
-      [[ "${QUIET:-false}" == false ]] && echo "🔍 Linting $(basename "$absfile") with flat ESLint config $(basename "$esconfig_file")"
+      qecho "🔍 Linting $(basename "$absfile") with flat ESLint config $(basename "$esconfig_file")"
       if ! eslint "$absfile"; then
         PROBLEM_FILES+=("$absfile (eslint)")
       fi
@@ -76,7 +76,7 @@ check_node() {
       $did_pushd && popd >/dev/null || return
       return
     }
-    [[ "${QUIET:-false}" == false ]] && echo "📐 Type-checking $absfile with tsc"
+    qecho "📐 Type-checking $absfile with tsc"
     if ! tsc --noEmit "$absfile"; then
       PROBLEM_FILES+=("$absfile (tsc)")
     fi
@@ -89,7 +89,7 @@ check_node() {
       return
     }
     if [[ -f "$pkg_root/package.json" ]]; then
-      [[ "${QUIET:-false}" == false ]] && echo "📦 Running depcheck in $pkg_root"
+      qecho "📦 Running depcheck in $pkg_root"
       depcheck "$pkg_root" || PROBLEM_FILES+=("$pkg_root (depcheck)")
     else
       warn "No package.json found at $pkg_root; skipping depcheck."
@@ -100,7 +100,7 @@ check_node() {
   if tool_enabled_for node npm-audit && [[ "$mode" =~ ^(lint|all)$ ]]; then
     if command -v npm &>/dev/null; then
       if [[ -f "$pkg_root/package-lock.json" ]]; then
-        [[ "${QUIET:-false}" == false ]] && echo "🔐 Running npm audit in $pkg_root"
+        qecho "🔐 Running npm audit in $pkg_root"
         npm audit --prefix "$pkg_root" || PROBLEM_FILES+=("$pkg_root (npm audit)")
       else
         warn "No package-lock.json found in $pkg_root; skipping npm audit."

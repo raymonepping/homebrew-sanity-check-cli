@@ -89,9 +89,9 @@ _writeback_if_changed() {
   local src_path="$1" tap_path="$2"
   if ! cmp -s "$src_path" "$tap_path"; then
     cp "$tap_path" "$src_path"
-    [[ "${QUIET:-false}" == false ]] && echo "💾 Wrote back brew style fixes to source: $src_path"
+    qecho "💾 Wrote back brew style fixes to source: $src_path"
   else
-    [[ "${QUIET:-false}" == false ]] && echo "🆗 No write-back needed, source already matches"
+    qecho "🆗 No write-back needed, source already matches"
   fi
 }
 
@@ -100,11 +100,11 @@ check_brew_formula() {
   local mode="${2:-all}"
 
   if ! is_brew_formula_file "$file"; then
-    [[ "${QUIET:-false}" == false ]] && echo "⏭️  [brew] Skipping non-formula: $file"
+    qecho "⏭️  [brew] Skipping non-formula: $file"
     return 0
   fi
 
-  [[ "${QUIET:-false}" == false ]] && echo "🧪 [brew] Checking Homebrew Formula: $file"
+  qecho "🧪 [brew] Checking Homebrew Formula: $file"
 
   local name had_issue=false
   name="$(_formula_name_from_path "$file")"
@@ -117,7 +117,7 @@ check_brew_formula() {
         had_issue=true
         PROBLEM_FILES+=("$file (brew ruby syntax)")
       else
-        [[ "${QUIET:-false}" == false ]] && echo "✔️  ruby syntax OK"
+        qecho "✔️  ruby syntax OK"
       fi
     else
       MISSING_TOOL_WARNINGS+=("ruby needed for formula syntax check")
@@ -129,7 +129,7 @@ check_brew_formula() {
   tool_enabled_for "brew" "brew_style" && need_style=true
   tool_enabled_for "brew" "brew_audit" && need_audit=true
   if [[ "$need_style" == false && "$need_audit" == false ]]; then
-    [[ "${QUIET:-false}" == false ]] && echo "⏭️  [brew] style/audit disabled by config"
+    qecho "⏭️  [brew] style/audit disabled by config"
     return 0
   fi
 
@@ -163,7 +163,7 @@ check_brew_formula() {
         had_issue=true
         PROBLEM_FILES+=("$file (brew style)")
       else
-        [[ "${QUIET:-false}" == false ]] && echo "🎨 brew style fixed or confirmed clean"
+        qecho "🎨 brew style fixed or confirmed clean"
       fi
 
       # Optional write-back of style changes from temp tap to source
@@ -176,7 +176,7 @@ check_brew_formula() {
         had_issue=true
         PROBLEM_FILES+=("$file (brew style)")
       else
-        [[ "${QUIET:-false}" == false ]] && echo "✔️  brew style OK"
+        qecho "✔️  brew style OK"
       fi
     fi
   fi
@@ -190,7 +190,7 @@ check_brew_formula() {
       had_issue=true
       PROBLEM_FILES+=("$file (brew audit)")
     else
-      [[ "${QUIET:-false}" == false ]] && echo "✔️  brew audit OK"
+      qecho "✔️  brew audit OK"
     fi
   fi
 

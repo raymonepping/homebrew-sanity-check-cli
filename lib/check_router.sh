@@ -39,7 +39,7 @@ route_file_check() {
         check_brew_formula "$file" "$mode"
         return
       fi
-      [[ "${QUIET:-false}" == false ]] && echo "⏭️  [ruby] Non-formula Ruby file skipped: $file"
+      qecho "⏭️  [ruby] Non-formula Ruby file skipped: $file"
       return
       ;;
     sh)
@@ -110,6 +110,6 @@ route_file_check() {
     return
   fi
 
-  [[ "$QUIET" == false ]] && echo "⚠️  Skipping unsupported file: $file"
+  qecho "⚠️  Skipping unsupported file: $file"
 }
 # ---------------------------

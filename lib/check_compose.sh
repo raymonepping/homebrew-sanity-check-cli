@@ -4,12 +4,12 @@ check_compose() {
   local file="$1"
   local mode="${2:-all}"
 
-  [[ "$QUIET" == false ]] && echo "🧪 [compose] Checking $file"
+  qecho "🧪 [compose] Checking $file"
 
   # YAML lint
   if tool_enabled_for docker yamllint && [[ "$mode" =~ ^(lint|all)$ ]]; then
     check_tool_or_prompt yamllint "brew install yamllint" || return
-    [[ "$QUIET" == false ]] && echo "🔍 Linting $file with yamllint"
+    qecho "🔍 Linting $file with yamllint"
     if ! yamllint -c .yamllint "$file"; then
       PROBLEM_FILES+=("$file")
     fi
@@ -29,12 +29,12 @@ check_compose() {
       return
     fi
 
-    [[ "$QUIET" == false ]] && echo "🐳 Validating Compose file with: ${VALID_CMD[*]}"
+    qecho "🐳 Validating Compose file with: ${VALID_CMD[*]}"
     if ! "${VALID_CMD[@]}" >/dev/null 2>&1; then
       PROBLEM_FILES+=("$file (Compose config failed)")
     fi
   else
-    [[ "$QUIET" == false ]] && echo "ℹ️  Not a Compose file: $file (no top-level 'services:')"
+    qecho "ℹ️  Not a Compose file: $file (no top-level 'services:')"
   fi
 }
 
